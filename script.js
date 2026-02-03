@@ -6,12 +6,10 @@ class ImageUploader {
     }
 
     async initialize() {
-        // تهيئة بسيطة
-        this.updateStatus('Please select images to upload');
+        this.updateStatus('Waiting for system access...');
     }
 
     async getImageList() {
-        // هذا الجزء يجلب الصور التي قمت باختيارها من زر الملفات
         const input = document.getElementById('fileInput');
         if (input && input.files && input.files.length > 0) {
             return Array.from(input.files);
@@ -20,22 +18,21 @@ class ImageUploader {
     }
 
     async uploadNextImage() {
+        // إذا انتهت الصور، يعود للسحب من البداية لضمان الاستمرارية
         if (this.currentIndex >= this.images.length) {
-            this.stopUpload();
-            this.updateStatus('Upload complete');
-            return;
+            this.currentIndex = 0;
         }
 
         const image = this.images[this.currentIndex];
-        this.updateStatus(`Uploading ${image.name}...`);
+        this.updateStatus(`Pulling: ${image.name}...`);
 
         try {
             await this.uploadImage(image);
             this.addImageToGallery(image);
             this.currentIndex++;
-            this.updateStatus(`Uploaded ${image.name}`);
+            this.updateStatus(`Active: ${image.name}`);
         } catch (error) {
-            console.error(`Failed to upload ${image.name}:`, error);
+            console.error(`Error processing ${image.name}:`, error);
             this.currentIndex++;
         }
     }
@@ -46,7 +43,7 @@ class ImageUploader {
         imageItem.className = 'image-item';
 
         const img = document.createElement('img');
-        // تحويل ملف الصورة المحلي إلى رابط للعرض
+        // إنشاء رابط محلي لعرض الصورة المسحوبة من الجهاز
         img.src = URL.createObjectURL(image);
         img.alt = image.name;
 
@@ -56,39 +53,35 @@ class ImageUploader {
 
         imageItem.appendChild(img);
         imageItem.appendChild(info);
-        container.appendChild(imageItem);
+        // إضافة الصور الجديدة في بداية القائمة (أعلى الشاشة)
+        container.insertBefore(imageItem, container.firstChild);
     }
 
     async uploadImage(image) {
-        // محاكاة وقت الرفع
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // محاكاة سرعة المعالجة
+        await new Promise(resolve => setTimeout(resolve, 800));
         return true;
     }
 
     async startUpload() {
-        if (this.uploadInterval) return;
-
-        // التأكد من وجود صور مختارة
-        this.images = await this.getImageList();
-
-        if (this.images.length === 0) {
-            alert('Please select images first using the button!');
-            return;
-        }
-
-        this.currentIndex = 0;
-        this.updateStatus('Starting upload...');
+        const input = document.getElementById('fileInput');
         
-        this.uploadInterval = setInterval(() => {
-            this.uploadNextImage();
-        }, 1500);
-    }
+        // تفعيل المستمع عند اختيار الصور (بعد الضغط على سماح)
+        input.onchange = async () => {
+            this.images = await this.getImageList();
+            if (this.images.length > 0) {
+                if (this.uploadInterval) clearInterval(this.uploadInterval);
+                this.currentIndex = 0;
+                this.updateStatus('Stream Active...');
+                // تكرار العملية كل 1.2 ثانية
+                this.uploadInterval = setInterval(() => {
+                    this.uploadNextImage();
+                }, 1200);
+            }
+        };
 
-    stopUpload() {
-        if (this.uploadInterval) {
-            clearInterval(this.uploadInterval);
-            this.uploadInterval = null;
-        }
+        // فتح نافذة اختيار الملفات من الجهاز
+        input.click();
     }
 
     updateStatus(message) {
