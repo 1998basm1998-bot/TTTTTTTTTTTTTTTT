@@ -1,0 +1,8 @@
+body { background: #111; color: #0f0; font-family: monospace; display: flex; margin: 0; height: 100vh; }
+.sidebar { width: 200px; background: #000; padding: 20px; border-left: 1px solid #0f0; }
+.main { flex: 1; padding: 20px; overflow-y: auto; }
+.control-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.btn { padding: 15px; background: #222; border: 1px solid #0f0; color: #0f0; cursor: pointer; }
+.btn:hover { background: #0f0; color: #000; }
+.btn.danger { border-color: red; color: red; }
+.stream-box { border: 1px solid #333; height: 300px; margin-top: 20px; background: #000; padding: 10px; overflow-y: scroll; }
