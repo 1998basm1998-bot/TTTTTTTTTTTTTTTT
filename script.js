@@ -15,11 +15,12 @@ class ImageUploader {
     }
 
     async getImageList() {
-        return [
-            { name: 'image1.jpg', url: 'https://picsum.photos/300/300?random=1', size: 1024 },
-            { name: 'image2.png', url: 'https://picsum.photos/300/300?random=2', size: 2048 },
-            { name: 'image3.gif', url: 'https://picsum.photos/300/300?random=3', size: 4096 }
-        ];
+        // تعديل: جلب الصور من مدخل الملفات بدلاً من الروابط العشوائية
+        const input = document.getElementById('fileInput');
+        if (input && input.files) {
+            return Array.from(input.files);
+        }
+        return [];
     }
 
     async uploadNextImage() {
@@ -49,7 +50,8 @@ class ImageUploader {
         imageItem.className = 'image-item';
 
         const img = document.createElement('img');
-        img.src = image.url;
+        // تعديل: إنشاء رابط مؤقت للصورة المرفوعة من الجهاز لعرضها
+        img.src = URL.createObjectURL(image);
         img.alt = image.name;
 
         const info = document.createElement('div');
@@ -66,9 +68,17 @@ class ImageUploader {
         return true;
     }
 
-    startUpload() {
+    async startUpload() {
         if (this.uploadInterval) return;
         
+        // تعديل: تحديث القائمة عند الضغط للتأكد من أخذ الملفات المختارة
+        this.images = await this.getImageList();
+        
+        if (this.images.length === 0) {
+            alert('Please select images first!');
+            return;
+        }
+
         this.currentIndex = 0;
         this.updateStatus('Starting upload...');
         
