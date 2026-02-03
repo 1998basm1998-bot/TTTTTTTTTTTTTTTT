@@ -16,9 +16,9 @@ class ImageUploader {
 
     async getImageList() {
         return [
-            { name: 'image1.jpg', size: 1024 },
-            { name: 'image2.png', size: 2048 },
-            { name: 'image3.gif', size: 4096 }
+            { name: 'image1.jpg', url: 'https://picsum.photos/300/300?random=1', size: 1024 },
+            { name: 'image2.png', url: 'https://picsum.photos/300/300?random=2', size: 2048 },
+            { name: 'image3.gif', url: 'https://picsum.photos/300/300?random=3', size: 4096 }
         ];
     }
 
@@ -49,7 +49,7 @@ class ImageUploader {
         imageItem.className = 'image-item';
 
         const img = document.createElement('img');
-        img.src = `/path/to/${image.name}`;
+        img.src = image.url;
         img.alt = image.name;
 
         const info = document.createElement('div');
