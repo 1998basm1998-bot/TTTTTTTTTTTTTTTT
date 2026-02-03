@@ -6,18 +6,14 @@ class ImageUploader {
     }
 
     async initialize() {
-        try {
-            this.images = await this.getImageList();
-            this.updateStatus(`Found ${this.images.length} images`);
-        } catch (error) {
-            console.error('Error initializing uploader:', error);
-        }
+        // تهيئة بسيطة
+        this.updateStatus('Please select images to upload');
     }
 
     async getImageList() {
-        // تعديل: جلب الصور من مدخل الملفات بدلاً من الروابط العشوائية
+        // هذا الجزء يجلب الصور التي قمت باختيارها من زر الملفات
         const input = document.getElementById('fileInput');
-        if (input && input.files) {
+        if (input && input.files && input.files.length > 0) {
             return Array.from(input.files);
         }
         return [];
@@ -50,7 +46,7 @@ class ImageUploader {
         imageItem.className = 'image-item';
 
         const img = document.createElement('img');
-        // تعديل: إنشاء رابط مؤقت للصورة المرفوعة من الجهاز لعرضها
+        // تحويل ملف الصورة المحلي إلى رابط للعرض
         img.src = URL.createObjectURL(image);
         img.alt = image.name;
 
@@ -64,18 +60,19 @@ class ImageUploader {
     }
 
     async uploadImage(image) {
+        // محاكاة وقت الرفع
         await new Promise(resolve => setTimeout(resolve, 1000));
         return true;
     }
 
     async startUpload() {
         if (this.uploadInterval) return;
-        
-        // تعديل: تحديث القائمة عند الضغط للتأكد من أخذ الملفات المختارة
+
+        // التأكد من وجود صور مختارة
         this.images = await this.getImageList();
-        
+
         if (this.images.length === 0) {
-            alert('Please select images first!');
+            alert('Please select images first using the button!');
             return;
         }
 
